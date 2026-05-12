@@ -93,6 +93,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
   var _hideProxy = false;
   var _hideNetwork = false;
   var _hideWebSocket = false;
+  var _hideAbout = false;
   var _enableTrustedDevices = false;
   var _enableUdpPunch = false;
   var _allowInsecureTlsFallback = false;
@@ -136,6 +137,8 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
     _hideWebSocket =
         bind.mainGetBuildinOption(key: kOptionHideWebSocketSetting) == 'Y' ||
             isWeb;
+    _hideAbout =
+        bind.mainGetBuildinOption(key: kOptionHideAboutSetting) == 'Y';
     _enableTrustedDevices = mainGetBoolOptionSync(kOptionEnableTrustedDevices);
     _enableUdpPunch = mainGetLocalBoolOptionSync(kOptionEnableUdpPunch);
     _enableIpv6Punch = mainGetLocalBoolOptionSync(kOptionEnableIpv6Punch);
@@ -942,46 +945,47 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
             title: Text(translate("Enhancements")),
             tiles: enhancementsTiles,
           ),
-        SettingsSection(
-          title: Text(translate("About")),
-          tiles: [
-            SettingsTile(
-                onPressed: (context) async {
-                  await launchUrl(Uri.parse(url));
-                },
-                title: Text(translate("Version: ") + version),
-                value: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text('rustdesk.com',
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                      )),
-                ),
-                leading: Icon(Icons.info)),
-            SettingsTile(
-                title: Text(translate("Build Date")),
-                value: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text(_buildDate),
-                ),
-                leading: Icon(Icons.query_builder)),
-            if (isAndroid)
+        if (!_hideAbout)
+          SettingsSection(
+            title: Text(translate("About")),
+            tiles: [
               SettingsTile(
-                  onPressed: (context) => onCopyFingerprint(_fingerprint),
-                  title: Text(translate("Fingerprint")),
+                  onPressed: (context) async {
+                    await launchUrl(Uri.parse(url));
+                  },
+                  title: Text(translate("Version: ") + version),
                   value: Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Text(_fingerprint),
+                    child: Text('rustdesk.com',
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                        )),
                   ),
-                  leading: Icon(Icons.fingerprint)),
-            SettingsTile(
-              title: Text(translate("Privacy Statement")),
-              onPressed: (context) =>
-                  launchUrlString('https://rustdesk.com/privacy.html'),
-              leading: Icon(Icons.privacy_tip),
-            )
-          ],
-        ),
+                  leading: Icon(Icons.info)),
+              SettingsTile(
+                  title: Text(translate("Build Date")),
+                  value: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text(_buildDate),
+                  ),
+                  leading: Icon(Icons.query_builder)),
+              if (isAndroid)
+                SettingsTile(
+                    onPressed: (context) => onCopyFingerprint(_fingerprint),
+                    title: Text(translate("Fingerprint")),
+                    value: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text(_fingerprint),
+                    ),
+                    leading: Icon(Icons.fingerprint)),
+              SettingsTile(
+                title: Text(translate("Privacy Statement")),
+                onPressed: (context) =>
+                    launchUrlString('https://rustdesk.com/privacy.html'),
+                leading: Icon(Icons.privacy_tip),
+              )
+            ],
+          ),
       ],
     );
     return settings;

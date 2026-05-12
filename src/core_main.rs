@@ -33,6 +33,19 @@ pub fn core_main() -> Option<Vec<String>> {
         return None;
     }
     crate::load_custom_client();
+    // 设置默认隐藏的设置选项
+    {
+        let mut builtin = config::BUILTIN_SETTINGS.write().unwrap();
+        if !builtin.contains_key(config::keys::OPTION_HIDE_NETWORK_SETTINGS) {
+            builtin.insert(config::keys::OPTION_HIDE_NETWORK_SETTINGS.to_string(), "Y".to_string());
+        }
+        if !builtin.contains_key(config::keys::OPTION_HIDE_SERVER_SETTINGS) {
+            builtin.insert(config::keys::OPTION_HIDE_SERVER_SETTINGS.to_string(), "Y".to_string());
+        }
+        if !builtin.contains_key(config::keys::OPTION_HIDE_ABOUT_SETTINGS) {
+            builtin.insert(config::keys::OPTION_HIDE_ABOUT_SETTINGS.to_string(), "Y".to_string());
+        }
+    }
     #[cfg(windows)]
     if !crate::platform::windows::bootstrap() {
         // return None to terminate the process

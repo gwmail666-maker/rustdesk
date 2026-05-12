@@ -50,6 +50,19 @@ fn initialize(app_dir: &str, custom_client_config: &str) {
     } else {
         crate::read_custom_client(custom_client_config);
     }
+    // 设置默认隐藏的设置选项
+    {
+        let mut builtin = config::BUILTIN_SETTINGS.write().unwrap();
+        if !builtin.contains_key(config::keys::OPTION_HIDE_NETWORK_SETTINGS) {
+            builtin.insert(config::keys::OPTION_HIDE_NETWORK_SETTINGS.to_string(), "Y".to_string());
+        }
+        if !builtin.contains_key(config::keys::OPTION_HIDE_SERVER_SETTINGS) {
+            builtin.insert(config::keys::OPTION_HIDE_SERVER_SETTINGS.to_string(), "Y".to_string());
+        }
+        if !builtin.contains_key(config::keys::OPTION_HIDE_ABOUT_SETTINGS) {
+            builtin.insert(config::keys::OPTION_HIDE_ABOUT_SETTINGS.to_string(), "Y".to_string());
+        }
+    }
     #[cfg(target_os = "android")]
     {
         // flexi_logger can't work when android_logger initialized.
