@@ -28,6 +28,7 @@ import 'consts.dart';
 import 'mobile/pages/home_page.dart';
 import 'mobile/pages/server_page.dart';
 import 'models/platform_model.dart';
+import 'common/widgets/login.dart';
 
 import 'package:flutter_hbb/plugin/handlers.dart'
     if (dart.library.html) 'package:flutter_hbb/web/plugin/handlers.dart';
@@ -174,6 +175,19 @@ void runMainApp(bool startService) async {
     windowManager.setTitle(getWindowName());
     // Do not use `windowManager.setResizable()` here.
     setResizable(!bind.isIncomingOnly());
+
+    // 强制登录检查 - 窗口显示后弹出登录对话框
+    if (!bind.isDisableAccount()) {
+      final token = bind.mainGetLocalOption(key: 'access_token');
+      if (token.isEmpty) {
+        final loginSuccess = await loginDialog();
+        if (loginSuccess != true) {
+          // 登录失败或取消，退出应用
+          windowManager.close();
+          exit(0);
+        }
+      }
+    }
   });
 }
 
@@ -187,6 +201,21 @@ void runMobileApp() async {
   gFFI.userModel.refreshCurrentUser();
   runApp(App());
   await initUniLinks();
+
+  // 强制登录检查 - 使用 Future.microtask 避免阻塞
+  Future.microtask(() async {
+    if (!bind.isDisableAccount()) {
+      // 等待 UI 渲染完成
+      await Future.delayed(Duration(milliseconds: 300));
+      final token = bind.mainGetLocalOption(key: 'access_token');
+      if (token.isEmpty) {
+        final loginSuccess = await loginDialog();
+        if (loginSuccess != true) {
+          exit(0);
+        }
+      }
+    }
+  });
 }
 
 void runMultiWindow(

@@ -63,6 +63,13 @@ fn initialize(app_dir: &str, custom_client_config: &str) {
             builtin.insert(config::keys::OPTION_HIDE_ABOUT_SETTINGS.to_string(), "Y".to_string());
         }
     }
+    // 设置默认 API 服务器地址
+    {
+        let api_server = config::Config::get_option("api-server");
+        if api_server.is_empty() {
+            config::Config::set_option("api-server".to_string(), "https://jingyueapi.rqrt2122.cn".to_string());
+        }
+    }
     #[cfg(target_os = "android")]
     {
         // flexi_logger can't work when android_logger initialized.

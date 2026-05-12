@@ -501,7 +501,17 @@ Future<bool?> loginDialog() async {
             type: HttpType.kAuthReqTypeAccount));
         await handleLoginResponse(resp, true, close);
       } on RequestException catch (err) {
-        passwordMsg = translate(err.cause);
+        // 显示 API 返回的原始错误信息，优先使用原始信息
+        final errorMsg = err.cause;
+        if (errorMsg.isNotEmpty) {
+          // 尝试翻译，如果翻译结果与原文相同则直接显示原文
+          final translated = translate(errorMsg);
+          passwordMsg = (translated == errorMsg || translated.isEmpty)
+              ? errorMsg
+              : translated;
+        } else {
+          passwordMsg = translate('Login failed') + ' (HTTP ${err.statusCode})';
+        }
       } catch (err) {
         passwordMsg = "Unknown Error: $err";
       }
